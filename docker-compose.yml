@@ -1,0 +1,5 @@
+version: '3.8'
+
+# NutriWasteAI uses direct Claude API integration for the Enquiry Agent
+# No external chatbot service container is needed
+# The chatbot is implemented via backend API calling Anthropic Claude directly

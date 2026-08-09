@@ -172,6 +172,47 @@ For production deployment:
 - `GET /reports/{id}` - Get specific report details
 - `GET /reports/{id}/pdf` - Download PDF report
 
+### Enquiry Agent
+- `POST /enquiry/chat` - General-purpose conversational chatbot powered by Claude API
+
+## Enquiry Agent
+
+The NutriWasteAI Enquiry Agent is a general-purpose conversational chatbot powered by **Groq's free API**. It can handle questions about the platform, food science, nutrition, sustainability, or general topics.
+
+### Setup
+
+1. **Create a free account** at [Groq Console](https://console.groq.com/) (no credit card required)
+2. **Generate an API key** from the console
+3. **Add to backend/.env**:
+   ```env
+   GROQ_API_KEY=your-groq-api-key-here
+   ```
+4. **Restart the backend server**
+
+### Features
+- **Free to Use**: No credit card required, generous free-tier limits
+- **General-Purpose**: Handles platform-specific and general knowledge questions
+- **Multi-Turn Memory**: Maintains conversation context within a session
+- **Fast Responses**: Uses Groq's optimized inference with llama-3.3-70b-versatile
+- **Rate Limiting**: Configurable limits to control usage
+- **System Prompt**: Grounded in NutriWasteAI context while remaining flexible
+
+### Usage
+Click the chat icon in the navbar to open the floating chat widget. The chatbot can answer questions about:
+- How NutriWasteAI works
+- Food waste valorization
+- Nutritional analysis
+- Sustainability topics
+- General knowledge questions
+
+### Free Tier Limits
+- **Model**: llama-3.3-70b-versatile (default, can be changed)
+- **Requests**: Generous daily request limits
+- **Cost**: Completely free, no per-token billing
+- **Speed**: Fast inference times via Groq's optimized infrastructure
+
+For detailed configuration and troubleshooting, see `ENQUIRY_AGENT_GROQ.md`.
+
 ## Database Schema
 
 ### Users Table
@@ -203,6 +244,10 @@ For production deployment:
 | `JWT_ALGORITHM` | JWT algorithm | `HS256` |
 | `JWT_EXPIRE_MINUTES` | JWT token expiration time | `60` |
 | `CORS_ORIGINS` | Allowed CORS origins | `http://localhost:5173,http://localhost:3000` |
+| `GROQ_API_KEY` | Groq API key for Enquiry Agent chatbot (free) | (required for chatbot) |
+| `GROQ_MODEL` | Groq model to use | `llama-3.3-70b-versatile` |
+| `GROQ_MAX_TOKENS` | Maximum response tokens | `1024` |
+| `CHAT_RATE_LIMIT_PER_MINUTE` | Rate limit for chatbot | `10` |
 
 ## ML Model Integration
 

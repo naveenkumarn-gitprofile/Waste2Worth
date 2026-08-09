@@ -4,9 +4,9 @@ import { Leaf, Recycle, Beaker, FileText, ArrowRight } from 'lucide-react';
 
 const Landing = () => {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background dark:bg-dark-bg">
       {/* Hero Section */}
-      <div className="bg-gradient-to-br from-primary-dark via-primary to-primary-light text-white">
+      <div className="bg-gradient-to-br from-primary-dark via-primary to-primary-light text-white dark:from-primary-dark dark:via-primary dark:to-primary-dark">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
           <div className="text-center">
             <div className="flex justify-center mb-6">
@@ -45,36 +45,36 @@ const Landing = () => {
           Supporting UN Sustainable Development Goals
         </h2>
         <div className="grid md:grid-cols-3 gap-8">
-          <div className="bg-white p-8 rounded-xl shadow-lg border-l-4 border-primary">
+          <div className="bg-white dark:bg-dark-card p-8 rounded-xl shadow-lg border-l-4 border-primary">
             <div className="bg-primary/10 p-3 rounded-full w-fit mb-4">
               <FileText className="h-8 w-8 text-primary" />
             </div>
-            <h3 className="text-xl font-bold text-primary-dark mb-2">SDG 2</h3>
-            <p className="text-gray-600">Zero Hunger - Promoting sustainable food production and reducing food waste</p>
+            <h3 className="text-xl font-bold text-primary-dark dark:text-dark-text mb-2">SDG 2</h3>
+            <p className="text-gray-600 dark:text-gray-400">Zero Hunger - Promoting sustainable food production and reducing food waste</p>
           </div>
           
-          <div className="bg-white p-8 rounded-xl shadow-lg border-l-4 border-primary">
+          <div className="bg-white dark:bg-dark-card p-8 rounded-xl shadow-lg border-l-4 border-primary">
             <div className="bg-primary/10 p-3 rounded-full w-fit mb-4">
               <Beaker className="h-8 w-8 text-primary" />
             </div>
-            <h3 className="text-xl font-bold text-primary-dark mb-2">SDG 9</h3>
-            <p className="text-gray-600">Industry, Innovation and Infrastructure - Fostering sustainable industrialization</p>
+            <h3 className="text-xl font-bold text-primary-dark dark:text-dark-text mb-2">SDG 9</h3>
+            <p className="text-gray-600 dark:text-gray-400">Industry, Innovation and Infrastructure - Fostering sustainable industrialization</p>
           </div>
           
-          <div className="bg-white p-8 rounded-xl shadow-lg border-l-4 border-primary">
+          <div className="bg-white dark:bg-dark-card p-8 rounded-xl shadow-lg border-l-4 border-primary">
             <div className="bg-primary/10 p-3 rounded-full w-fit mb-4">
               <Recycle className="h-8 w-8 text-primary" />
             </div>
-            <h3 className="text-xl font-bold text-primary-dark mb-2">SDG 12</h3>
-            <p className="text-gray-600">Responsible Consumption and Production - Ensuring sustainable consumption patterns</p>
+            <h3 className="text-xl font-bold text-primary-dark dark:text-dark-text mb-2">SDG 12</h3>
+            <p className="text-gray-600 dark:text-gray-400">Responsible Consumption and Production - Ensuring sustainable consumption patterns</p>
           </div>
         </div>
       </div>
 
       {/* Features Section */}
-      <div className="bg-white py-16">
+      <div className="bg-white dark:bg-dark-card py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold text-primary-dark text-center mb-12">
+          <h2 className="text-3xl font-bold text-primary-dark dark:text-dark-text text-center mb-12">
             How It Works
           </h2>
           <div className="grid md:grid-cols-4 gap-6">
@@ -82,32 +82,32 @@ const Landing = () => {
               <div className="bg-secondary/20 p-4 rounded-full w-fit mx-auto mb-4">
                 <span className="text-2xl font-bold text-primary-dark">1</span>
               </div>
-              <h3 className="font-bold text-primary-dark mb-2">Input Sample</h3>
-              <p className="text-gray-600 text-sm">Enter details manually or capture an image of your food waste sample</p>
+              <h3 className="font-bold text-primary-dark dark:text-dark-text mb-2">Input Sample</h3>
+              <p className="text-gray-600 dark:text-gray-400 text-sm">Enter details manually or capture an image of your food waste sample</p>
             </div>
             
             <div className="text-center">
               <div className="bg-secondary/20 p-4 rounded-full w-fit mx-auto mb-4">
-                <span className="text-2xl font-bold text-primary-dark">2</span>
+                <span className="text-2xl font-bold text-primary-dark dark:text-dark-text">2</span>
               </div>
-              <h3 className="font-bold text-primary-dark mb-2">AI Analysis</h3>
-              <p className="text-gray-600 text-sm">Our AI analyzes the nutritional composition and potential applications</p>
+              <h3 className="font-bold text-primary-dark dark:text-dark-text mb-2">AI Analysis</h3>
+              <p className="text-gray-600 dark:text-gray-400 text-sm">Our AI analyzes the nutritional composition and potential applications</p>
             </div>
             
             <div className="text-center">
               <div className="bg-secondary/20 p-4 rounded-full w-fit mx-auto mb-4">
-                <span className="text-2xl font-bold text-primary-dark">3</span>
+                <span className="text-2xl font-bold text-primary-dark dark:text-dark-text">3</span>
               </div>
-              <h3 className="font-bold text-primary-dark mb-2">Get Recommendations</h3>
-              <p className="text-gray-600 text-sm">Receive tailored value-added product suggestions with justifications</p>
+              <h3 className="font-bold text-primary-dark dark:text-dark-text mb-2">Get Recommendations</h3>
+              <p className="text-gray-600 dark:text-gray-400 text-sm">Receive tailored value-added product suggestions with justifications</p>
             </div>
             
             <div className="text-center">
               <div className="bg-secondary/20 p-4 rounded-full w-fit mx-auto mb-4">
-                <span className="text-2xl font-bold text-primary-dark">4</span>
+                <span className="text-2xl font-bold text-primary-dark dark:text-dark-text">4</span>
               </div>
-              <h3 className="font-bold text-primary-dark mb-2">Export & Save</h3>
-              <p className="text-gray-600 text-sm">Download detailed PDF reports and track your analysis history</p>
+              <h3 className="font-bold text-primary-dark dark:text-dark-text mb-2">Export & Save</h3>
+              <p className="text-gray-600 dark:text-gray-400 text-sm">Download detailed PDF reports and track your analysis history</p>
             </div>
           </div>
         </div>

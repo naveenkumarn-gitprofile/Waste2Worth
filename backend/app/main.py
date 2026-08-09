@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.core.database import engine, Base, SessionLocal
 from app.api import auth, analysis, reports
+from app.api import enquiry
 from sqlalchemy import text
 
 # Create database tables
@@ -23,6 +24,7 @@ app.add_middleware(
 app.include_router(auth.router, prefix="/auth", tags=["Authentication"])
 app.include_router(analysis.router, prefix="/analysis", tags=["Analysis"])
 app.include_router(reports.router, prefix="/reports", tags=["Reports"])
+app.include_router(enquiry.router, prefix="/enquiry", tags=["Enquiry"])
 
 
 @app.get("/")

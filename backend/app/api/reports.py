@@ -20,6 +20,16 @@ import os
 router = APIRouter()
 
 
+@router.get("/count")
+def get_reports_count(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Get the total count of reports for the logged-in user"""
+    count = db.query(Report).filter(Report.user_id == current_user.id).count()
+    return {"count": count}
+
+
 @router.get("/", response_model=List[ReportListResponse])
 def get_reports(
     skip: int = 0,

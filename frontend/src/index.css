@@ -2,12 +2,140 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  /* Light Mode Theme Variables */
+  --bg-primary: #F8FAF6;
+  --bg-secondary: #FFFFFF;
+  --surface: #FFFFFF;
+  --text-primary: #1B4332;
+  --text-secondary: #4B5563;
+  --text-muted: #6B7280;
+  --border: #E5E4E7;
+  --input-bg: #FFFFFF;
+  --input-text: #1B4332;
+  --placeholder: #9CA3AF;
+  --accent: #2D6A4F;
+  --accent-hover: #1B4332;
+  --card-bg: #FFFFFF;
+}
+
+.dark {
+  /* Dark Mode Theme Variables */
+  --bg-primary: #121714;
+  --bg-secondary: #1A211D;
+  --surface: #1A211D;
+  --text-primary: #E8E4D9;
+  --text-secondary: #B8B4AB;
+  --text-muted: #9A9A9A;
+  --border: #2D3733;
+  --input-bg: #1A211D;
+  --input-text: #E8E4D9;
+  --placeholder: #6B7280;
+  --accent: #40916C;
+  --accent-hover: #95D5B2;
+  --card-bg: #1A211D;
+}
+
 body {
   margin: 0;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-  background-color: #F8FAF6;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background-color 0.3s, color 0.3s;
 }
 
 #root {
   min-height: 100vh;
+}
+
+/* Dark mode helper classes using CSS variables */
+.dark .bg-background {
+  background-color: var(--bg-primary) !important;
+}
+
+.dark .bg-white {
+  background-color: var(--card-bg) !important;
+}
+
+.dark .text-primary-dark {
+  color: var(--text-primary) !important;
+}
+
+.dark .text-gray-600 {
+  color: var(--text-secondary) !important;
+}
+
+.dark .text-gray-700 {
+  color: var(--text-secondary) !important;
+}
+
+.dark .text-gray-500 {
+  color: var(--text-muted) !important;
+}
+
+.dark .border-gray-200 {
+  border-color: var(--border) !important;
+}
+
+.dark .border-gray-300 {
+  border-color: var(--border) !important;
+}
+
+.dark input, .dark textarea, .dark select {
+  background-color: var(--input-bg) !important;
+  color: var(--input-text) !important;
+  border-color: var(--border) !important;
+}
+
+.dark input::placeholder, .dark textarea::placeholder, .dark select::placeholder {
+  color: var(--placeholder) !important;
+}
+
+.dark input:focus, .dark textarea:focus, .dark select:focus {
+  border-color: var(--accent) !important;
+  outline-color: var(--accent) !important;
+}
+
+/* Button focus states */
+button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Link focus states */
+a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Chat Widget positioning */
+.chat-widget {
+  position: fixed;
+  right: 24px;
+  bottom: 90px;
+  width: 380px;
+  max-width: calc(100vw - 32px);
+  max-height: 70vh;
+  z-index: 50;
+}
+
+@media (max-width: 768px) {
+  .chat-widget {
+    right: 12px;
+    left: 12px;
+    width: auto;
+    max-width: none;
+    max-height: 85vh;
+    bottom: 80px;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .chat-widget {
+    width: min(380px, calc(100vw - 32px));
+  }
+}
+
+.chat-widget-minimized {
+  bottom: 24px;
 }

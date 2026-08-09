@@ -1,13 +1,62 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Plus, Camera, FileText, BarChart3, Leaf } from 'lucide-react';
 
 const Dashboard = () => {
   const { user, isTrial } = useAuth();
+  const [analysisCount, setAnalysisCount] = useState('-');
+  const [recentReport, setRecentReport] = useState(null);
+
+  useEffect(() => {
+    if (!isTrial && user) {
+      fetchAnalysisCount();
+      fetchRecentReport();
+    } else {
+      setAnalysisCount('0');
+    }
+  }, [isTrial, user]);
+
+  const fetchAnalysisCount = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch('http://localhost:8000/reports/count', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setAnalysisCount(data.count);
+      }
+    } catch (error) {
+      console.error('Error fetching analysis count:', error);
+    }
+  };
+
+  const fetchRecentReport = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch('http://localhost:8000/reports/?limit=1', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.length > 0) {
+          setRecentReport(data[0]);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching recent report:', error);
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background dark:bg-dark-bg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Welcome Section */}
         <div className="mb-8">
@@ -24,11 +73,11 @@ const Dashboard = () => {
 
         {/* Summary Cards */}
         <div className="grid md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-primary">
+          <div className="bg-white dark:bg-dark-card rounded-xl shadow-lg p-6 border-l-4 border-primary">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-600 text-sm font-medium">Total Analyses</p>
-                <p className="text-3xl font-bold text-primary-dark mt-1">-</p>
+                <p className="text-gray-600 dark:text-gray-400 text-sm font-medium">Total Analyses</p>
+                <p className="text-3xl font-bold text-primary-dark dark:text-dark-text mt-1">{analysisCount}</p>
               </div>
               <div className="bg-primary/10 p-3 rounded-full">
                 <BarChart3 className="h-8 w-8 text-primary" />
@@ -36,11 +85,18 @@ const Dashboard = () => {
             </div>
           </div>
 
-          <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-secondary">
+          <div className="bg-white dark:bg-dark-card rounded-xl shadow-lg p-6 border-l-4 border-secondary">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-600 text-sm font-medium">Most Recent</p>
-                <p className="text-lg font-bold text-primary-dark mt-1">No reports yet</p>
+                <p className="text-gray-600 dark:text-gray-400 text-sm font-medium">Most Recent</p>
+                <p className="text-lg font-bold text-primary-dark dark:text-dark-text mt-1">
+                  {recentReport ? recentReport.sample_name : 'No reports yet'}
+                </p>
+                {recentReport && (
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    {new Date(recentReport.created_at).toLocaleDateString()}
+                  </p>
+                )}
               </div>
               <div className="bg-secondary/20 p-3 rounded-full">
                 <FileText className="h-8 w-8 text-primary" />
@@ -48,11 +104,11 @@ const Dashboard = () => {
             </div>
           </div>
 
-          <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-accent">
+          <div className="bg-white dark:bg-dark-card rounded-xl shadow-lg p-6 border-l-4 border-accent">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-600 text-sm font-medium">Account Type</p>
-                <p className="text-lg font-bold text-primary-dark mt-1">
+                <p className="text-gray-600 dark:text-gray-400 text-sm font-medium">Account Type</p>
+                <p className="text-lg font-bold text-primary-dark dark:text-dark-text mt-1">
                   {isTrial ? 'Trial Mode' : 'Full Access'}
                 </p>
               </div>
@@ -67,17 +123,17 @@ const Dashboard = () => {
         <div className="grid md:grid-cols-2 gap-6 mb-8">
           <Link
             to="/analysis/manual"
-            className="bg-white rounded-xl shadow-lg p-8 hover:shadow-xl transition-shadow border-2 border-transparent hover:border-primary group"
+            className="bg-white dark:bg-dark-card rounded-xl shadow-lg p-8 hover:shadow-xl transition-shadow border-2 border-transparent hover:border-primary group"
           >
             <div className="flex items-center space-x-4">
               <div className="bg-primary/10 p-4 rounded-full group-hover:bg-primary/20 transition-colors">
                 <Plus className="h-10 w-10 text-primary" />
               </div>
               <div>
-                <h3 className="text-xl font-bold text-primary-dark mb-1">
+                <h3 className="text-xl font-bold text-primary-dark dark:text-dark-text mb-1">
                   New Analysis — Manual Entry
                 </h3>
-                <p className="text-gray-600">
+                <p className="text-gray-600 dark:text-gray-400">
                   Enter sample details manually for nutritional analysis
                 </p>
               </div>
@@ -86,17 +142,17 @@ const Dashboard = () => {
 
           <Link
             to="/analysis/image"
-            className="bg-white rounded-xl shadow-lg p-8 hover:shadow-xl transition-shadow border-2 border-transparent hover:border-primary group"
+            className="bg-white dark:bg-dark-card rounded-xl shadow-lg p-8 hover:shadow-xl transition-shadow border-2 border-transparent hover:border-primary group"
           >
             <div className="flex items-center space-x-4">
               <div className="bg-primary/10 p-4 rounded-full group-hover:bg-primary/20 transition-colors">
                 <Camera className="h-10 w-10 text-primary" />
               </div>
               <div>
-                <h3 className="text-xl font-bold text-primary-dark mb-1">
+                <h3 className="text-xl font-bold text-primary-dark dark:text-dark-text mb-1">
                   New Analysis — Capture Image
                 </h3>
-                <p className="text-gray-600">
+                <p className="text-gray-600 dark:text-gray-400">
                   Take or upload a photo of your waste sample
                 </p>
               </div>
