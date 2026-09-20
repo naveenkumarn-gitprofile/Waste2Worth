@@ -66,16 +66,9 @@ async def chat_with_groq(
 ):
     """
     Groq API integration for general-purpose conversational chatbot.
-    Uses Groq's free OpenAI-compatible API with llama-3.3-70b-versatile model.
+    Uses Groq's free OpenAI-compatible API with fallback responses.
     """
     try:
-        # Check API key
-        if not settings.GROQ_API_KEY:
-            raise HTTPException(
-                status_code=503,
-                detail="Groq API key not configured. Please set GROQ_API_KEY in environment variables."
-            )
-        
         # Simple rate limiting (use session ID or IP as identifier)
         session_id = authorization or "anonymous"
         if not rate_limiter.is_allowed(session_id):
@@ -83,6 +76,11 @@ async def chat_with_groq(
                 status_code=429,
                 detail="I'm getting a lot of questions right now — please try again in a moment."
             )
+        
+        # Check API key
+        if not settings.GROQ_API_KEY:
+            logger.warning("Groq API key not configured, using fallback responses")
+            return {"response": get_fallback_response(request.message)}
         
         # Prepare conversation history for Groq API (OpenAI-compatible format)
         messages = [{"role": "system", "content": SYSTEM_PROMPT}]
@@ -127,35 +125,20 @@ async def chat_with_groq(
                     
                 elif response.status_code == 429:
                     logger.error(f"Groq API rate limit exceeded: {response.text}")
-                    raise HTTPException(
-                        status_code=429,
-                        detail="I'm getting a lot of questions right now — please try again in a moment."
-                    )
+                    return {"response": get_fallback_response(request.message)}
                 else:
                     logger.error(f"Groq API returned status {response.status_code}: {response.text}")
-                    raise HTTPException(
-                        status_code=503,
-                        detail="I'm having trouble connecting right now. Please try again later."
-                    )
+                    return {"response": get_fallback_response(request.message)}
                     
         except httpx.TimeoutException:
             logger.error("Groq API request timed out")
-            raise HTTPException(
-                status_code=503,
-                detail="The request took too long. Please try again."
-            )
+            return {"response": get_fallback_response(request.message)}
         except httpx.ConnectError:
             logger.error("Could not connect to Groq API")
-            raise HTTPException(
-                status_code=503,
-                detail="I'm having trouble connecting right now. Please try again later."
-            )
+            return {"response": get_fallback_response(request.message)}
         except Exception as e:
             logger.error(f"Unexpected Groq API error: {str(e)}")
-            raise HTTPException(
-                status_code=500,
-                detail="An unexpected error occurred while processing your request."
-            )
+            return {"response": get_fallback_response(request.message)}
                 
     except HTTPException:
         raise
@@ -165,3 +148,33 @@ async def chat_with_groq(
             status_code=500,
             detail="An error occurred processing your request."
         )
+
+
+def get_fallback_response(message: str) -> str:
+    """Generate a fallback response when API is unavailable"""
+    message_lower = message.lower()
+    
+    # Platform-specific responses
+    if "how does" in message_lower and "nutriwasteai" in message_lower:
+        return "NutriWasteAI is an AI-powered platform for food-waste valorization. You can analyze food waste samples through manual entry or image capture to get nutritional composition analysis and value-added product recommendations. The platform supports both trial mode (unlimited analyses but no saving) and logged-in mode (save reports, access history, download PDFs)."
+    
+    elif "manual entry" in message_lower:
+        return "Manual Entry allows you to input sample details including sample name, source type, and nutritional values like moisture, ash, protein, fat, crude fiber, carbohydrate, total phenolics, total flavonoids, and DPPH inhibition levels for analysis."
+    
+    elif "image capture" in message_lower or "image" in message_lower:
+        return "Image Capture lets you upload photos of food waste samples. The system helps identify the sample and provides nutritional input fields for analysis."
+    
+    elif "trial" in message_lower or "login" in message_lower:
+        return "Trial mode allows unlimited analyses without registration, but you can't save reports or download PDFs. Logged-in users can save analyses, access history, and download comprehensive PDF reports."
+    
+    elif "pdf" in message_lower or "report" in message_lower:
+        return "Logged-in users can download comprehensive PDF reports containing nutritional composition, product recommendations, and processing methods. Trial users cannot download PDFs."
+    
+    elif "fruit" in message_lower or "peel" in message_lower:
+        return "Common fruit peels analyzed include Banana, Mango, Papaya, Citrus (Lime/Mosambi/Orange), Guava, Pomegranate, Pineapple, and Watermelon rind. These can be valorized into various value-added products."
+    
+    elif "product" in message_lower or "recommendation" in message_lower:
+        return "Based on nutritional analysis, the system recommends value-added products like bio-energy gas, biodegradable packaging, biofuel, animal feed supplements, health snack powders, natural preservatives, organic compost, and skincare products."
+    
+    # General fallback
+    return "I'm currently having trouble connecting to my AI service, but I can help with questions about NutriWasteAI! Ask me about how the platform works, manual entry, image capture, trial vs login features, fruit peel analysis, or product recommendations."

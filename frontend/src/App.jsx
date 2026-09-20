@@ -8,7 +8,6 @@ import Login from './pages/Login';
 import Trial from './pages/Trial';
 import Dashboard from './pages/Dashboard';
 import ManualAnalysis from './pages/ManualAnalysis';
-import ImageAnalysis from './pages/ImageAnalysis';
 import AnalysisResult from './pages/AnalysisResult';
 import History from './pages/History';
 import ReportDetail from './pages/ReportDetail';
@@ -29,7 +28,6 @@ function AppContent() {
         {/* Protected routes */}
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/analysis/manual" element={<ManualAnalysis />} />
-        <Route path="/analysis/image" element={<ImageAnalysis />} />
         <Route path="/analysis/result" element={<AnalysisResult />} />
         <Route path="/history" element={<History />} />
         <Route path="/history/:id" element={<ReportDetail />} />

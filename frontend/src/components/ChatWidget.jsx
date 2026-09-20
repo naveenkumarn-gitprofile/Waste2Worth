@@ -105,27 +105,29 @@ const ChatWidget = ({ isOpen, onClose }) => {
           : 'bottom-24 right-6 w-[calc(100vw-24px)] md:w-[380px] md:bottom-24 max-h-[85vh] md:max-h-[70vh]'
       }`}
     >
-      <div className={`rounded-xl shadow-2xl overflow-hidden flex flex-col ${isDark ? 'bg-dark-card' : 'bg-white'} border ${isDark ? 'border-gray-700' : 'border-gray-200'}`}>
+      <div className={`rounded-xl shadow-2xl overflow-hidden flex flex-col ${isDark ? 'bg-dark-card' : 'bg-white'} border ${isDark ? 'border-gray-700' : 'border-gray-200'} backdrop-blur-sm`}>
         {/* Header */}
         <div className="bg-primary-dark text-white p-4 flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <Bot className="h-5 w-5" />
+            <div className="bg-secondary/20 p-1.5 rounded-full">
+              <Bot className="h-5 w-5 text-secondary" />
+            </div>
             <span className="font-semibold">Enquiry Agent</span>
           </div>
           <div className="flex items-center space-x-2">
             <button
               onClick={() => setIsMinimized(!isMinimized)}
-              className="p-1 hover:bg-primary-light rounded transition-colors"
+              className="p-1 hover:bg-primary-light rounded transition-all duration-200 active:scale-95 focus:ring-2 focus:ring-secondary/50"
               aria-label={isMinimized ? "Maximize chat" : "Minimize chat"}
             >
-              {isMinimized ? <Maximize2 className="h-4 w-4" /> : <Minimize2 className="h-4 w-4" />}
+              {isMinimized ? <Maximize2 className="h-4 w-4 hover:scale-110 transition-transform duration-200" /> : <Minimize2 className="h-4 w-4 hover:scale-110 transition-transform duration-200" />}
             </button>
             <button
               onClick={onClose}
-              className="p-1 hover:bg-primary-light rounded transition-colors"
+              className="p-1 hover:bg-primary-light rounded transition-all duration-200 active:scale-95 focus:ring-2 focus:ring-secondary/50"
               aria-label="Close chat"
             >
-              <X className="h-4 w-4" />
+              <X className="h-4 w-4 hover:scale-110 transition-transform duration-200" />
             </button>
           </div>
         </div>
@@ -140,17 +142,17 @@ const ChatWidget = ({ isOpen, onClose }) => {
               {messages.map((message, index) => (
                 <div
                   key={index}
-                  className={`flex items-start space-x-3 ${
+                  className={`flex items-start space-x-3 animate-fade-in ${
                     message.role === 'user' ? 'flex-row-reverse space-x-reverse' : ''
                   }`}
                 >
                   <div className={`flex-shrink-0 ${
                     message.role === 'user' ? 'bg-primary text-white' : 'bg-secondary text-primary-dark'
-                  } p-2 rounded-full`}>
+                  } p-2 rounded-full group-hover:scale-110 transition-transform duration-300`}>
                     {message.role === 'user' ? <User className="h-4 w-4" /> : <Bot className="h-4 w-4" />}
                   </div>
                   <div
-                    className={`flex-1 p-3 rounded-lg max-w-[80%] ${
+                    className={`flex-1 p-3 rounded-lg max-w-[80%] hover-card ${
                       message.role === 'user'
                         ? 'bg-primary text-white ml-auto'
                         : isDark ? 'bg-dark-card text-dark-text' : 'bg-white text-gray-800'
@@ -161,12 +163,16 @@ const ChatWidget = ({ isOpen, onClose }) => {
                 </div>
               ))}
               {isLoading && (
-                <div className="flex items-center space-x-3">
-                  <div className="bg-secondary text-primary-dark p-2 rounded-full">
-                    <Bot className="h-4 w-4" />
+                <div className="flex items-center space-x-3 animate-fade-in">
+                  <div className="bg-secondary text-primary-dark p-2 rounded-full animate-pulse-slow">
+                    <Bot className="h-4 w-4 animate-spin" style={{ animationDuration: '3s' }} />
                   </div>
                   <div className={`flex-1 p-3 rounded-lg ${isDark ? 'bg-dark-card' : 'bg-white'}`}>
-                    <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                    <div className="flex space-x-1">
+                      <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                      <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                      <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                    </div>
                   </div>
                 </div>
               )}
@@ -175,14 +181,14 @@ const ChatWidget = ({ isOpen, onClose }) => {
 
             {/* Starter Questions */}
             {messages.length === 1 && !isLoading && (
-              <div className="p-4 border-t border-gray-200 dark:border-gray-700">
+              <div className="p-4 border-t border-gray-200 dark:border-gray-700 animate-fade-in">
                 <p className={`text-sm mb-3 ${isDark ? 'text-dark-muted' : 'text-gray-600'}`}>Quick questions:</p>
                 <div className="space-y-2">
                   {starterQuestions.map((question, index) => (
                     <button
                       key={index}
                       onClick={() => handleStarterQuestion(question)}
-                      className={`w-full text-left p-2 rounded-lg text-sm transition-colors ${
+                      className={`w-full text-left p-2 rounded-lg text-sm transition-all duration-200 active:scale-95 focus:ring-2 focus:ring-primary/50 ${
                         isDark 
                           ? 'bg-dark-card hover:bg-gray-700 text-dark-text' 
                           : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
@@ -204,7 +210,7 @@ const ChatWidget = ({ isOpen, onClose }) => {
                   onChange={(e) => setInputValue(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
                   placeholder="Ask a question..."
-                  className={`flex-1 px-4 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-primary ${
+                  className={`flex-1 px-4 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all duration-200 ${
                     isDark
                       ? 'bg-dark-card border-gray-700 text-dark-text placeholder-gray-500'
                       : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
@@ -214,10 +220,10 @@ const ChatWidget = ({ isOpen, onClose }) => {
                 <button
                   onClick={handleSendMessage}
                   disabled={isLoading || !inputValue.trim()}
-                  className="p-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="p-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg active:scale-95 focus:ring-2 focus:ring-secondary/50"
                   aria-label="Send message"
                 >
-                  <Send className="h-4 w-4" />
+                  <Send className="h-4 w-5 hover:scale-110 transition-transform duration-200" />
                 </button>
               </div>
             </div>

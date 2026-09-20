@@ -14,16 +14,23 @@ class Report(Base):
     input_method = Column(String, nullable=False)  # "manual" or "image"
     image_path = Column(String, nullable=True)
     
-    # Nutrient values
+    # New ML model parameters (9 features)
+    moisture = Column(Float, nullable=True)
+    ash = Column(Float, nullable=True)
     protein = Column(Float, nullable=True)
     fat = Column(Float, nullable=True)
-    fibre = Column(Float, nullable=True)
+    crude_fiber = Column(Float, nullable=True)
     carbohydrate = Column(Float, nullable=True)
-    ash = Column(Float, nullable=True)
-    moisture = Column(Float, nullable=True)
-    energy = Column(Float, nullable=True)
+    total_phenolics = Column(Float, nullable=True)
+    total_flavonoids = Column(Float, nullable=True)
+    dpph = Column(Float, nullable=True)
     
-    # Additional nutritional data
+    # Fruit peel type (for UI only, not used in ML model)
+    fruit_type = Column(String, nullable=True)
+    
+    # Legacy nutrient values (kept for backward compatibility)
+    fibre = Column(Float, nullable=True)
+    energy = Column(Float, nullable=True)
     ph = Column(Float, nullable=True)
     polyphenol = Column(Float, nullable=True)
     antioxidant = Column(Float, nullable=True)

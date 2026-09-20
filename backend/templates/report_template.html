@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NutriWasteAI Analysis Report</title>
+    <style>
+        @page {
+            size: A4 portrait;
+            margin: 10mm 12mm;
+            background-color: #f8fafc;
+        }
+        
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            font-size: 9.5pt;
+            line-height: 1.35;
+            color: #1e293b;
+            background-color: #f8fafc;
+        }
+        
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            background: white;
+            padding: 8mm;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 8px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #1e293b;
+        }
+        
+        .header h1 {
+            font-size: 16pt;
+            font-weight: bold;
+            color: #1e293b;
+            margin: 0 0 4px 0;
+        }
+        
+        .header .subtitle {
+            font-size: 9pt;
+            color: #64748b;
+            margin: 0;
+        }
+        
+        .meta-badge {
+            display: inline-block;
+            background-color: #f1f5f9;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 8pt;
+            color: #475569;
+            margin-top: 4px;
+        }
+        
+        .section {
+            margin-bottom: 8px;
+        }
+        
+        .section-title {
+            font-size: 11pt;
+            font-weight: bold;
+            color: #1e293b;
+            margin: 0 0 6px 0;
+            padding-bottom: 2px;
+            border-bottom: 1px solid #e2e8f0;
+            border-left: 3px solid #1e293b;
+            padding-left: 6px;
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 9pt;
+        }
+        
+        .data-table th {
+            background-color: #f1f5f9;
+            font-weight: bold;
+            text-align: left;
+            padding: 3px 6px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .data-table td {
+            padding: 3px 6px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        
+        .data-table tr:nth-child(even) {
+            background-color: #f8fafc;
+        }
+        
+        .data-table .value {
+            font-weight: 500;
+            color: #334155;
+        }
+        
+        .confidence-card {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+            margin-bottom: 6px;
+        }
+        
+        .confidence-card .score {
+            font-size: 14pt;
+            font-weight: bold;
+        }
+        
+        .confidence-card .label {
+            font-size: 8pt;
+            opacity: 0.9;
+        }
+        
+        .rule-badge {
+            display: inline-block;
+            background-color: #dcfce7;
+            color: #166534;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 8pt;
+            font-weight: 500;
+            margin-top: 4px;
+        }
+        
+        .recommendation-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 9pt;
+        }
+        
+        .recommendation-table th {
+            background-color: #1e293b;
+            color: white;
+            font-weight: bold;
+            text-align: left;
+            padding: 3px 6px;
+        }
+        
+        .recommendation-table td {
+            padding: 3px 6px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .recommendation-table .rank {
+            font-weight: bold;
+            color: #1e293b;
+            text-align: center;
+        }
+        
+        .recommendation-table .confidence {
+            font-weight: 500;
+            color: #059669;
+        }
+        
+        .footer {
+            text-align: center;
+            font-size: 8pt;
+            color: #94a3b8;
+            margin-top: 12px;
+            padding-top: 8px;
+            border-top: 1px solid #e2e8f0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header Banner -->
+        <div class="header">
+            <h1>NutriWasteAI — Value Addition Analysis Report</h1>
+            <p class="subtitle">AI-Powered Food Waste Valorization & Product Recommendation</p>
+            <div class="meta-badge">
+                Sample ID: {{ sample_id }} | Date: {{ created_at }}
+            </div>
+        </div>
+
+        <!-- Lab Input Parameters -->
+        <div class="section">
+            <h2 class="section-title">Laboratory Input Parameters</h2>
+            <table class="data-table">
+                <tr>
+                    <th>Parameter</th>
+                    <th>Value</th>
+                    <th>Parameter</th>
+                    <th>Value</th>
+                </tr>
+                <tr>
+                    <td>Fruit Type</td>
+                    <td class="value">{{ fruit_type }}</td>
+                    <td>Days Since Harvest</td>
+                    <td class="value">{{ days_since_harvest }} days</td>
+                </tr>
+                <tr>
+                    <td>Moisture Content</td>
+                    <td class="value">{{ moisture_content_pct }}%</td>
+                    <td>pH Level</td>
+                    <td class="value">{{ ph_level }}</td>
+                </tr>
+                <tr>
+                    <td>Brix TSS</td>
+                    <td class="value">{{ brix_tss_deg }}°Bx</td>
+                    <td>Pectin Content</td>
+                    <td class="value">{{ pectin_content_pct }}%</td>
+                </tr>
+                <tr>
+                    <td>Total Phenolics</td>
+                    <td class="value">{{ total_phenolics_mg_gae_g }} mg GAE/g</td>
+                    <td>Crude Fiber</td>
+                    <td class="value">{{ crude_fiber_pct }}%</td>
+                </tr>
+                <tr>
+                    <td>Protein Content</td>
+                    <td class="value">{{ protein_content_pct }}%</td>
+                    <td>Reducing Sugars</td>
+                    <td class="value">{{ reducing_sugars_pct }}%</td>
+                </tr>
+                <tr>
+                    <td>Vitamin C</td>
+                    <td class="value">{{ vitamin_c_mg_100g }} mg/100g</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Model Prediction Overview -->
+        <div class="section">
+            <h2 class="section-title">Model Prediction Overview</h2>
+            <div class="confidence-card">
+                <div class="score">{{ top_confidence_pct }}%</div>
+                <div class="label">Top Confidence Score</div>
+            </div>
+            <div class="rule-badge">{{ rule_applied }}</div>
+        </div>
+
+        <!-- Recommended Value-Added Products -->
+        <div class="section">
+            <h2 class="section-title">Recommended Value-Added Products</h2>
+            <table class="recommendation-table">
+                <thead>
+                    <tr>
+                        <th style="width: 15%">Rank</th>
+                        <th style="width: 35%">Product Name</th>
+                        <th style="width: 20%">Confidence</th>
+                        <th style="width: 30%">Application</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for rec in recommendations %}
+                    <tr>
+                        <td class="rank">#{{ rec.rank }}</td>
+                        <td class="value">{{ rec.product }}</td>
+                        <td class="confidence">{{ rec.confidence_pct }}%</td>
+                        <td>{{ rec.rationale | default('High-value application based on biochemical profile') }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            Generated by NutriWasteAI Intelligence Engine • Confidential Laboratory Report
+        </div>
+    </div>
+</body>
+</html>

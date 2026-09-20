@@ -7,15 +7,16 @@ from app.core.schemas import ReportResponse, ReportListResponse
 from app.models.report import Report
 from app.models.user import User
 from app.api.auth import get_current_user
-from reportlab.lib.pagesizes import letter
+from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib.units import inch
+from reportlab.lib.units import mm, inch
 from reportlab.lib import colors
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, PageBreak
-from reportlab.lib.enums import TA_CENTER, TA_LEFT
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, KeepTogether
+from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT
 from datetime import datetime
 import tempfile
 import os
+
 
 router = APIRouter()
 
@@ -106,131 +107,155 @@ def download_report_pdf(
 
 
 def generate_pdf_report(report: Report, pdf_path: str):
-    """Generate PDF report using ReportLab"""
+    """Generate PDF report using ReportLab with simple structure and better visibility"""
     
-    # Extract composition data
+    # Extract complete data from report
     composition = report.composition or {}
     recommendations = report.recommended_products or []
     
-    # Create PDF document
+    # Extract ML prediction data
+    top_confidence_pct = composition.get('top_confidence_pct', 0.0)
+    rule_applied = composition.get('rule_applied', 'No rule applied')
+    
+    # Extract input parameters from individual columns first (new reports), then fallback to composition
+    input_params = {
+        'fruit_type': report.fruit_type or composition.get('fruit_type', 'Unknown'),
+        'moisture': report.moisture or composition.get('moisture', 0.0),
+        'ash': report.ash or composition.get('ash', 0.0),
+        'protein': report.protein or composition.get('protein', 0.0),
+        'fat': report.fat or composition.get('fat', 0.0),
+        'crude_fiber': report.crude_fiber or composition.get('crude_fiber', 0.0),
+        'carbohydrate': report.carbohydrate or composition.get('carbohydrate', 0.0),
+        'total_phenolics': report.total_phenolics or composition.get('total_phenolics', 0.0),
+        'total_flavonoids': report.total_flavonoids or composition.get('total_flavonoids', 0.0),
+        'dpph': report.dpph or composition.get('dpph', 0.0),
+    }
+    
+    # Create PDF document with A4 size and proper margins
     doc = SimpleDocTemplate(
         pdf_path,
-        pagesize=letter,
-        rightMargin=72,
-        leftMargin=72,
-        topMargin=72,
-        bottomMargin=18
+        pagesize=A4,
+        rightMargin=20*mm,
+        leftMargin=20*mm,
+        topMargin=15*mm,
+        bottomMargin=15*mm
     )
     
     # Get styles
     styles = getSampleStyleSheet()
     
-    # Custom styles
+    # Custom styles for better visibility
     title_style = ParagraphStyle(
         'CustomTitle',
         parent=styles['Heading1'],
-        fontSize=24,
-        textColor=colors.HexColor('#1B4332'),
-        spaceAfter=30,
-        alignment=TA_CENTER
+        fontSize=18,
+        textColor=colors.black,
+        spaceAfter=5*mm,
+        alignment=TA_CENTER,
+        fontName='Helvetica-Bold'
+    )
+    
+    subtitle_style = ParagraphStyle(
+        'CustomSubtitle',
+        parent=styles['Normal'],
+        fontSize=10,
+        textColor=colors.darkgrey,
+        spaceAfter=8*mm,
+        alignment=TA_CENTER,
+        fontName='Helvetica'
     )
     
     heading_style = ParagraphStyle(
         'CustomHeading',
         parent=styles['Heading2'],
-        fontSize=16,
-        textColor=colors.HexColor('#1B4332'),
-        spaceAfter=12,
-        spaceBefore=20
+        fontSize=12,
+        textColor=colors.black,
+        spaceAfter=4*mm,
+        spaceBefore=6*mm,
+        fontName='Helvetica-Bold',
+        leading=14
     )
     
-    normal_style = styles['Normal']
-    normal_style.fontSize = 11
+    normal_style = ParagraphStyle(
+        'CustomNormal',
+        parent=styles['Normal'],
+        fontSize=10,
+        textColor=colors.black,
+        fontName='Helvetica',
+        leading=12
+    )
+    
+    value_style = ParagraphStyle(
+        'CustomValue',
+        parent=styles['Normal'],
+        fontSize=10,
+        textColor=colors.blue,
+        fontName='Helvetica-Bold',
+        leading=12
+    )
+    
+    confidence_style = ParagraphStyle(
+        'CustomConfidence',
+        parent=styles['Normal'],
+        fontSize=16,
+        textColor=colors.red,
+        alignment=TA_CENTER,
+        fontName='Helvetica-Bold',
+        leading=18
+    )
     
     # Build content
     story = []
     
     # Header
-    story.append(Paragraph("NutriWasteAI Analysis Report", title_style))
-    story.append(Paragraph("Food Waste Valorization & Nutritional Assessment", normal_style))
-    story.append(Spacer(1, 0.3 * inch))
+    story.append(Paragraph("NutriWasteAI - Value Addition Analysis Report", title_style))
+    story.append(Paragraph("AI-Powered Food Waste Valorization & Product Recommendation", subtitle_style))
+    
+    # Meta information
+    meta_text = f"Sample ID: NW-{report.id:06d} | Date: {report.created_at.strftime('%B %d, %Y %H:%M')}"
+    story.append(Paragraph(meta_text, normal_style))
+    story.append(Spacer(1, 8*mm))
     
     # Sample Information
     story.append(Paragraph("Sample Information", heading_style))
+    story.append(Paragraph(f"<b>Sample Name:</b> {report.sample_name}", normal_style))
+    story.append(Paragraph(f"<b>Source Type:</b> {report.source_type}", normal_style))
+    story.append(Paragraph(f"<b>Input Method:</b> {report.input_method}", normal_style))
+    story.append(Spacer(1, 6*mm))
     
-    info_data = [
-        ['Sample Name:', report.sample_name],
-        ['Source Type:', report.source_type],
-        ['Input Method:', report.input_method.title()],
-        ['Analysis Date:', report.created_at.strftime('%B %d, %Y')]
-    ]
+    # Laboratory Input Parameters - Simple list format
+    story.append(Paragraph("Laboratory Input Parameters", heading_style))
+    story.append(Paragraph(f"<b>Fruit Peel Type:</b> {input_params['fruit_type']}", normal_style))
+    story.append(Paragraph(f"<b>Moisture:</b> {input_params['moisture']:.2f}%", normal_style))
+    story.append(Paragraph(f"<b>Ash:</b> {input_params['ash']:.2f}%", normal_style))
+    story.append(Paragraph(f"<b>Protein:</b> {input_params['protein']:.2f}%", normal_style))
+    story.append(Paragraph(f"<b>Fat:</b> {input_params['fat']:.2f}%", normal_style))
+    story.append(Paragraph(f"<b>Crude Fiber:</b> {input_params['crude_fiber']:.2f}%", normal_style))
+    story.append(Paragraph(f"<b>Carbohydrate:</b> {input_params['carbohydrate']:.2f}%", normal_style))
+    story.append(Paragraph(f"<b>Total Phenolics:</b> {input_params['total_phenolics']:.2f} mg GAE/g", normal_style))
+    story.append(Paragraph(f"<b>Total Flavonoids:</b> {input_params['total_flavonoids']:.2f} mg QE/g", normal_style))
+    story.append(Paragraph(f"<b>DPPH Inhibition:</b> {input_params['dpph']:.2f}%", normal_style))
+    story.append(Spacer(1, 6*mm))
     
-    info_table = Table(info_data, colWidths=[2 * inch, 3 * inch])
-    info_table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (0, -1), colors.HexColor('#F8FAF6')),
-        ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
-        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-        ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
-        ('FONTSIZE', (0, 0), (-1, -1), 10),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
-        ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
-    ]))
-    story.append(info_table)
-    story.append(Spacer(1, 0.3 * inch))
+    # Model Prediction Overview
+    story.append(Paragraph("Model Prediction Overview", heading_style))
+    story.append(Paragraph(f"<b>Top Confidence Score:</b> {top_confidence_pct:.2f}%", confidence_style))
+    story.append(Paragraph(f"<b>Applied Rule:</b> {rule_applied}", normal_style))
+    story.append(Spacer(1, 6*mm))
     
-    # Nutritional Composition
-    story.append(Paragraph("Nutritional Composition (per 100g)", heading_style))
-    
-    nutrient_data = [
-        ['Nutrient', 'Value'],
-        ['Protein', f"{composition.get('protein_g_per_100g', 'N/A')} g"],
-        ['Fat', f"{composition.get('fat_g_per_100g', 'N/A')} g"],
-        ['Fibre', f"{composition.get('fibre_g_per_100g', 'N/A')} g"],
-        ['Carbohydrate', f"{composition.get('carbohydrate_g_per_100g', 'N/A')} g"],
-        ['Ash', f"{composition.get('ash_g_per_100g', 'N/A')} g"],
-        ['Moisture', f"{composition.get('moisture_g_per_100g', 'N/A')} g"],
-        ['Energy', f"{composition.get('energy_kcal_per_100g', 'N/A')} kcal"]
-    ]
-    
-    nutrient_table = Table(nutrient_data, colWidths=[2.5 * inch, 2.5 * inch])
-    nutrient_table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#1B4332')),
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
-        ('BACKGROUND', (0, 1), (-1, -1), colors.white),
-        ('TEXTCOLOR', (0, 1), (-1, -1), colors.black),
-        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
-        ('FONTSIZE', (0, 0), (-1, -1), 10),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
-        ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
-    ]))
-    story.append(nutrient_table)
-    story.append(Spacer(1, 0.3 * inch))
-    
-    # Recommendations
+    # Recommended Value-Added Products - Simple numbered list
     story.append(Paragraph("Recommended Value-Added Products", heading_style))
+    for i, rec in enumerate(recommendations, 1):
+        story.append(Paragraph(f"<b>{i}. {rec['product']}</b>", normal_style))
+        story.append(Paragraph(f"   Confidence: {rec['confidence_pct']}%", value_style))
+        story.append(Paragraph(f"   Application: High-value application based on biochemical profile", normal_style))
+        story.append(Spacer(1, 3*mm))
     
-    for rec in recommendations:
-        product = rec.get('product', 'Unnamed Product')
-        rationale = rec.get('rationale', 'No rationale provided.')
-        
-        story.append(Paragraph(f"<b>{product}</b>", normal_style))
-        story.append(Paragraph(rationale, normal_style))
-        story.append(Spacer(1, 0.1 * inch))
-    
-    # Source Reference
-    if composition.get('source_reference'):
-        story.append(Spacer(1, 0.2 * inch))
-        story.append(Paragraph(f"<i>Source Reference: {composition['source_reference']}</i>", normal_style))
+    story.append(Spacer(1, 8*mm))
     
     # Footer
-    story.append(PageBreak())
-    story.append(Spacer(1, 1 * inch))
-    story.append(Paragraph("Generated by NutriWasteAI", normal_style))
-    story.append(Paragraph("Contributing to UN Sustainable Development Goals 2, 9, and 12", normal_style))
-    story.append(Spacer(1, 0.2 * inch))
-    story.append(Paragraph(f"Report generated on {datetime.now().strftime('%B %d, %Y at %I:%M %p')}", normal_style))
+    footer_text = "Generated by NutriWasteAI Intelligence Engine • Confidential Laboratory Report"
+    story.append(Paragraph(footer_text, normal_style))
     
     # Build PDF
     doc.build(story)

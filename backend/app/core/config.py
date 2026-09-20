@@ -12,7 +12,7 @@ class Settings(BaseSettings):
     
     # Groq API Configuration for Enquiry Agent (Free API)
     GROQ_API_KEY: str = ""
-    GROQ_MODEL: str = "llama-3.3-70b-versatile"
+    GROQ_MODEL: str = "qwen/qwen3.8-27b"
     GROQ_MAX_TOKENS: int = 1024
     CHAT_RATE_LIMIT_PER_MINUTE: int = 10
     

@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, field_validator
 from typing import Optional, List
 from datetime import datetime
 
@@ -36,12 +36,41 @@ class Token(BaseModel):
 class ManualAnalysisInput(BaseModel):
     sample_name: str
     source_type: str  # fruit peel, vegetable residue, whey, oilseed cake, other
-    protein: Optional[float] = None
-    fat: Optional[float] = None
-    fibre: Optional[float] = None
-    carbohydrate: Optional[float] = None
-    ash: Optional[float] = None
-    moisture: Optional[float] = None
+    fruit_type: str  # For UI selection only - not sent to ML model
+    moisture: float  # Moisture content percentage
+    ash: float  # Ash content percentage
+    protein: float  # Protein content percentage
+    fat: float  # Fat content percentage
+    crude_fiber: float  # Crude fiber percentage
+    carbohydrate: float  # Carbohydrate percentage
+    total_phenolics: float  # Total phenolics (mg GAE/g)
+    total_flavonoids: float  # Total flavonoids (mg QE/g)
+    dpph: float  # DPPH inhibition percentage
+
+    @field_validator('moisture', 'ash', 'protein', 'fat', 'crude_fiber', 'carbohydrate', 'total_phenolics', 'total_flavonoids', 'dpph')
+    @classmethod
+    def validate_numeric_fields(cls, v):
+        if v < 0:
+            raise ValueError('Value must be non-negative')
+        return v
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "sample_name": "Banana Peel Sample",
+                "source_type": "fruit peel",
+                "fruit_type": "Banana",
+                "moisture": 85.5,
+                "ash": 8.2,
+                "protein": 6.1,
+                "fat": 3.8,
+                "crude_fiber": 12.4,
+                "carbohydrate": 58.3,
+                "total_phenolics": 45.2,
+                "total_flavonoids": 32.1,
+                "dpph": 78.5
+            }
+        }
 
 
 class ImageAnalysisInput(BaseModel):
@@ -61,12 +90,14 @@ class Composition(BaseModel):
 
 
 class Recommendation(BaseModel):
+    rank: int
     product: str
-    rationale: str
+    confidence_pct: float
 
 
 class AnalysisResponse(BaseModel):
-    composition: Composition
+    top_confidence_pct: float
+    rule_applied: str
     recommendations: List[Recommendation]
     report_id: Optional[int] = None  # Only populated if saved to DB
 
@@ -78,12 +109,19 @@ class ReportResponse(BaseModel):
     source_type: str
     input_method: str
     image_path: Optional[str] = None
+    # New ML model parameters
+    moisture: Optional[float] = None
+    ash: Optional[float] = None
     protein: Optional[float] = None
     fat: Optional[float] = None
-    fibre: Optional[float] = None
+    crude_fiber: Optional[float] = None
     carbohydrate: Optional[float] = None
-    ash: Optional[float] = None
-    moisture: Optional[float] = None
+    total_phenolics: Optional[float] = None
+    total_flavonoids: Optional[float] = None
+    dpph: Optional[float] = None
+    fruit_type: Optional[str] = None
+    # Legacy fields for backward compatibility
+    fibre: Optional[float] = None
     energy: Optional[float] = None
     composition: Optional[dict] = None
     recommended_products: Optional[List[dict]] = None
